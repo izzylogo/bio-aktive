@@ -564,59 +564,64 @@ export default function App() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="fixed right-6 top-1/2 -translate-y-1/2 z-[140] flex flex-col items-center group h-[280px]"
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-[140] flex flex-col items-center group h-[300px] px-3 py-6 rounded-full backdrop-blur-2xl border border-white/20 shadow-2xl"
+            style={{ backgroundColor: `${currentProduct.color}15` }}
           >
-            {/* The Track */}
-            <div className="absolute top-0 bottom-0 w-[3px] bg-white/10 rounded-full overflow-hidden">
+            {/* The Track (Themed Fill) */}
+            <div className="absolute top-6 bottom-6 w-[4px] bg-black/10 rounded-full overflow-hidden">
               {/* The "Volume" Fill */}
               <motion.div
                 className="absolute top-0 w-full"
                 animate={{
-                  height: (currentSection * (280 / 7)),
-                  backgroundColor: currentProduct.color
+                  height: (currentSection * (252 / 7)),
+                  backgroundColor: "black"
                 }}
                 transition={{ type: "spring", stiffness: 200, damping: 25 }}
               />
             </div>
             
-            {/* The Markers & Interaction Areas */}
-            <div className="relative flex flex-col justify-between h-full py-2">
+            {/* The Markers (Black Notches) */}
+            <div className="relative flex flex-col justify-between h-full pointer-events-auto">
               {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
                 const isActive = currentSection === i;
-                const isPassed = currentSection >= i;
                 return (
                   <button
                     key={i}
                     onClick={() => goToSection(i)}
-                    className="relative flex items-center justify-center w-8 h-8 -mx-3 transition-transform active:scale-90"
+                    className="group relative flex items-center justify-center w-10 h-6 -mx-4 transition-all"
                     aria-label={`Go to section ${i}`}
                   >
-                    {/* The Mark */}
+                    {/* The Notch/Marker (Black) */}
                     <motion.div
                       animate={{
-                        backgroundColor: isPassed ? currentProduct.color : "rgba(255,255,255,0.4)",
-                        scale: isActive ? 1.4 : 0.8,
-                        opacity: isPassed ? 1 : 0.5
+                        width: isActive ? 14 : 7,
+                        height: 2,
+                        backgroundColor: "black",
+                        opacity: isActive ? 0.9 : 0.25
                       }}
-                      className="w-2.5 h-2.5 rounded-full border border-white/10 shadow-sm"
+                      className="rounded-full"
                     />
+                    
+                    {/* Hover Effect */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 rounded-lg transition-colors" />
                   </button>
                 );
               })}
             </div>
 
-            {/* The Sliding Point Thumb */}
+            {/* The Sliding Point Thumb (Accent Color) */}
             <motion.div
               layoutId="active-nav-point"
-              className="absolute w-5 h-5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-10 border-2 border-white cursor-pointer"
+              className="absolute w-6 h-6 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-10 border-2 border-white cursor-pointer"
               animate={{
-                y: (currentSection * (280 / 7)) - 10, // Adjust centering for 5x5 (20px) thumb
+                y: (currentSection * (252 / 7)) + 12, // Adjusted for 300px container and padding
                 backgroundColor: currentProduct.color,
-                boxShadow: `0 0 15px ${currentProduct.color}90`
+                boxShadow: `0 0 15px ${currentProduct.color}70`
               }}
-              transition={{ type: "spring", stiffness: 200, damping: 25 }}
+              transition={{ type: "spring", stiffness: 220, damping: 22 }}
             >
-              <div className="absolute inset-[2px] rounded-full bg-white/20 blur-[1px]" />
+              {/* Inner Tick for depth */}
+              <div className="absolute inset-[4px] rounded-full bg-white/20 blur-[1px]" />
             </motion.div>
           </motion.div>
         )}
@@ -901,11 +906,11 @@ export default function App() {
           animate={currentSection === 4 ? 'visible' : 'hidden'}
           variants={textRevealContainer}
         >
-          <div className="inline-block bg-white/30 backdrop-blur-xl px-10 py-8 rounded-[3rem] border border-white/20 shadow-2xl max-w-lg">
+          <div className="inline-block bg-white/30 backdrop-blur-xl px-10 py-8 md:px-0 md:py-0 rounded-[3rem] md:rounded-none border border-white/20 md:border-none shadow-2xl md:shadow-none max-w-lg md:max-w-2xl md:bg-transparent md:backdrop-blur-none">
             <motion.h2 variants={textRevealItem} className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
               Our Collection
             </motion.h2>
-            <motion.p variants={textRevealSoftItem} className="text-gray-800 text-xs md:text-base max-w-sm mx-auto font-medium leading-relaxed">
+            <motion.p variants={textRevealSoftItem} className="text-gray-800 md:text-gray-700 text-xs md:text-base max-w-sm md:max-w-none mx-auto font-medium md:font-normal leading-relaxed">
               Discover our full range of premium bioactive supplements, designed for maximum absorption and efficacy.
             </motion.p>
           </div>
