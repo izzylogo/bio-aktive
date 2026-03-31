@@ -437,8 +437,8 @@ export default function App() {
       />
 
       {/* Navbar (Fixed) */}
-      <nav className={`absolute top-0 w-full px-8 py-6 flex items-center justify-between z-60 pointer-events-none transition-transform duration-500 ${currentSection > 0 ? '-translate-y-full' : 'translate-y-0'}`}>
-        <div className="text-2xl font-semibold tracking-tight text-gray-900 pointer-events-auto">
+      <nav className={`absolute top-0 w-full px-5 md:px-8 py-5 md:py-6 flex items-center justify-between z-60 pointer-events-none transition-transform duration-500 ${currentSection > 0 ? '-translate-y-full' : 'translate-y-0'}`}>
+        <div className="text-xl md:text-3xl font-semibold tracking-tight text-gray-900 pointer-events-auto">
           <span className="lowercase">bio-</span>
           <span className="font-serif italic font-medium">Aktive</span>
         </div>
@@ -447,21 +447,21 @@ export default function App() {
           <a href="#" onClick={(e) => { e.preventDefault(); goToSection(1); }} className="transition-colors">About</a>
           <a href="#" onClick={(e) => { e.preventDefault(); goToSection(2); }} className="transition-colors">Insights</a>
         </div>
-        <div className="flex items-center space-x-6 pointer-events-auto">
-          <button className="p-2 hover:bg-black/5 rounded-full transition-colors">
+        <div className="flex items-center space-x-3 md:space-x-6 pointer-events-auto">
+          <button className="hidden md:flex p-2 hover:bg-black/5 rounded-full transition-colors">
             <Search className="w-5 h-5 text-gray-700" />
           </button>
           <button
             onClick={() => setIsCartOpen(true)}
-            className="flex items-center space-x-3 bg-white/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 shadow-sm hover:bg-white/60 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer relative"
+            className="flex items-center space-x-0 md:space-x-3 bg-white/40 backdrop-blur-md p-1.5 md:px-4 md:py-2 rounded-full border border-white/30 shadow-sm hover:bg-white/60 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer relative"
           >
             {cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-black text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white animate-in zoom-in duration-300">
+              <span className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-black text-white text-[9px] md:text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white animate-in zoom-in duration-300">
                 {cart.length}
               </span>
             )}
-            <img src="https://i.pravatar.cc/150?img=32" alt="User" className="w-7 h-7 rounded-full border border-white" />
-            <span className="text-sm font-semibold text-gray-800">salman</span>
+            <img src="https://i.pravatar.cc/150?img=32" alt="User" className="w-6 h-6 md:w-7 md:h-7 rounded-full border border-white" />
+            <span className="hidden md:block text-sm font-semibold text-gray-800">salman</span>
           </button>
         </div>
       </nav>
@@ -557,44 +557,67 @@ export default function App() {
         </motion.div>
       </motion.div>
 
-      {/* Mobile Section Checkpoints */}
+      {/* Mobile Section Slider Checkpoints */}
       <AnimatePresence>
         {isMobile && !showMobileWarning && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="fixed right-4 top-1/2 -translate-y-1/2 z-[140] flex flex-col items-center space-y-4 py-6 px-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-xl"
+            className="fixed right-6 top-1/2 -translate-y-1/2 z-[140] flex flex-col items-center group h-[280px]"
           >
-            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
-              const isActive = currentSection === i;
-              return (
-                <button
-                  key={i}
-                  onClick={() => goToSection(i)}
-                  className="relative group p-1 transition-all"
-                  aria-label={`Go to section ${i}`}
-                >
-                  <motion.div
-                    animate={{
-                      scale: isActive ? 1.4 : 1,
-                      backgroundColor: isActive ? currentProduct.color : "rgba(255,255,255,0.4)"
-                    }}
-                    className="w-2.5 h-2.5 rounded-full shadow-sm hover:scale-125 transition-transform"
-                    style={{
-                      border: isActive ? `2px solid white` : "none"
-                    }}
-                  />
-                  {isActive && (
+            {/* The Track */}
+            <div className="absolute top-0 bottom-0 w-[3px] bg-white/10 rounded-full overflow-hidden">
+              {/* The "Volume" Fill */}
+              <motion.div
+                className="absolute top-0 w-full"
+                animate={{
+                  height: (currentSection * (280 / 7)),
+                  backgroundColor: currentProduct.color
+                }}
+                transition={{ type: "spring", stiffness: 200, damping: 25 }}
+              />
+            </div>
+            
+            {/* The Markers & Interaction Areas */}
+            <div className="relative flex flex-col justify-between h-full py-2">
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+                const isActive = currentSection === i;
+                const isPassed = currentSection >= i;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => goToSection(i)}
+                    className="relative flex items-center justify-center w-8 h-8 -mx-3 transition-transform active:scale-90"
+                    aria-label={`Go to section ${i}`}
+                  >
+                    {/* The Mark */}
                     <motion.div
-                      layoutId="active-nav-glow"
-                      className="absolute inset-0 rounded-full blur-[6px] opacity-40"
-                      style={{ backgroundColor: currentProduct.color }}
+                      animate={{
+                        backgroundColor: isPassed ? currentProduct.color : "rgba(255,255,255,0.4)",
+                        scale: isActive ? 1.4 : 0.8,
+                        opacity: isPassed ? 1 : 0.5
+                      }}
+                      className="w-2.5 h-2.5 rounded-full border border-white/10 shadow-sm"
                     />
-                  )}
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* The Sliding Point Thumb */}
+            <motion.div
+              layoutId="active-nav-point"
+              className="absolute w-5 h-5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] z-10 border-2 border-white cursor-pointer"
+              animate={{
+                y: (currentSection * (280 / 7)) - 10, // Adjust centering for 5x5 (20px) thumb
+                backgroundColor: currentProduct.color,
+                boxShadow: `0 0 15px ${currentProduct.color}90`
+              }}
+              transition={{ type: "spring", stiffness: 200, damping: 25 }}
+            >
+              <div className="absolute inset-[2px] rounded-full bg-white/20 blur-[1px]" />
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -763,7 +786,7 @@ export default function App() {
           className="relative w-full h-[100dvh] flex flex-col items-center justify-center px-5 md:px-10 pt-14 md:pt-16 pb-4 md:pb-6 pointer-events-auto transition-colors duration-1000 ease-in-out"
           style={{ backgroundColor: currentProduct.bgColor }}
         >
-          <div className="h-[4.5rem] md:h-20 w-full shrink-0" /> {/* Spacer for the text */}
+          <div className="h-[8.5rem] md:h-20 w-full shrink-0" /> {/* Spacer for the header text */}
 
           <div
             className="mt-5 md:mt-0 flex flex-wrap justify-center gap-3 md:gap-5 w-full max-w-6xl overflow-y-auto pb-3 md:pb-4 px-2 touch-pan-y"
@@ -873,17 +896,19 @@ export default function App() {
         transition={{ duration: 0.8, ease: "easeInOut" }}
       >
         <motion.div
-          className="text-center mb-5 md:mb-6 pointer-events-auto"
+          className="text-center mb-5 md:mb-6 pointer-events-auto flex flex-col items-center"
           initial="hidden"
           animate={currentSection === 4 ? 'visible' : 'hidden'}
           variants={textRevealContainer}
         >
-          <motion.h2 variants={textRevealItem} className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
-            Our Collection
-          </motion.h2>
-          <motion.p variants={textRevealSoftItem} className="text-gray-700 max-w-2xl mx-auto">
-            Discover our full range of premium bioactive supplements, designed for maximum absorption and efficacy.
-          </motion.p>
+          <div className="inline-block bg-white/30 backdrop-blur-xl px-10 py-8 rounded-[3rem] border border-white/20 shadow-2xl max-w-lg">
+            <motion.h2 variants={textRevealItem} className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+              Our Collection
+            </motion.h2>
+            <motion.p variants={textRevealSoftItem} className="text-gray-800 text-xs md:text-base max-w-sm mx-auto font-medium leading-relaxed">
+              Discover our full range of premium bioactive supplements, designed for maximum absorption and efficacy.
+            </motion.p>
+          </div>
         </motion.div>
       </motion.div>
 
@@ -1110,11 +1135,11 @@ export default function App() {
                   <input
                     type="email"
                     placeholder="Enter your email"
-                    className="h-14 flex-1 rounded-full border border-white/10 bg-white/10 px-6 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-white/30 focus:bg-white/12"
+                    className="h-14 sm:h-16 flex-1 rounded-full border border-white/10 bg-white/10 px-6 text-xs sm:text-sm text-white outline-none transition placeholder:text-white/35 focus:border-white/30 focus:bg-white/12"
                   />
                   <button
                     type="submit"
-                    className="h-14 rounded-full px-8 text-sm font-semibold text-white transition hover:brightness-110"
+                    className="h-14 sm:h-16 rounded-full px-8 text-xs sm:text-sm font-semibold text-white transition hover:brightness-110"
                     style={{ backgroundColor: footerAccent }}
                   >
                     Subscribe
@@ -1141,17 +1166,17 @@ export default function App() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+                  <div className="grid grid-cols-3 gap-6 sm:gap-10">
                     {footerLinkGroups.map((group) => (
                       <motion.div key={group.title} variants={textRevealSoftItem}>
-                        <p className="text-sm font-semibold text-white/90">{group.title}</p>
+                        <p className="text-xs sm:text-sm font-semibold text-white/90">{group.title}</p>
                         <div className="mt-4 space-y-3">
                           {group.links.map((link) => (
                             <a
                               key={link}
                               href="#"
                               onClick={(e) => e.preventDefault()}
-                              className="block text-sm text-white/55 transition hover:text-white/90"
+                              className="block text-xs sm:text-sm text-white/55 transition hover:text-white/90"
                             >
                               {link}
                             </a>
