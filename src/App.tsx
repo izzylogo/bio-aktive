@@ -137,11 +137,28 @@ export default function App() {
     }
   }, [progress]);
 
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMobileWarning, setShowMobileWarning] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Only show warning if mobile and not already dismissed in this session
+      if (mobile && !sessionStorage.getItem('mobile-warning-dismissed')) {
+        setShowMobileWarning(true);
+      }
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [currentSection, setCurrentSection] = useState(0);
   const [isTopButtonAnimating, setIsTopButtonAnimating] = useState(false);
-  
+
   // Cart & Notification State
   const [cart, setCart] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -150,7 +167,7 @@ export default function App() {
 
   const addToCart = (product: any, cardRect?: DOMRect) => {
     setCart(prev => [...prev, product]);
-    
+
     // Add notification
     const newNotif: NotificationItem = {
       id: Math.random().toString(36).substring(2, 9),
@@ -230,7 +247,7 @@ export default function App() {
     setCurrentSection(index);
 
     animate(scrollProgressRef.current, index, {
-      duration: 0.8,
+      duration: isMobile ? 0.6 : 0.8,
       ease: "easeInOut",
       onUpdate: (latest) => {
         scrollProgressRef.current = latest;
@@ -276,10 +293,11 @@ export default function App() {
 
     // Handle vertical scroll
     if (!isScrolling.current) {
-      if (deltaY > 40) {
+      const threshold = isMobile ? 60 : 40;
+      if (deltaY > threshold) {
         goToSection(currentSection + 1);
         touchStartY.current = e.clientY;
-      } else if (deltaY < -40) {
+      } else if (deltaY < -threshold) {
         goToSection(currentSection - 1);
         touchStartY.current = e.clientY;
       }
@@ -331,6 +349,45 @@ export default function App() {
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
+      {/* Mobile Experience Warning */}
+      <AnimatePresence>
+        {showMobileWarning && (
+          <motion.div
+            key="mobile-warning"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100000] flex items-center justify-center bg-black/60 backdrop-blur-xl p-8 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              className="bg-white/10 backdrop-blur-md border border-white/20 rounded-[2.5rem] p-10 max-w-sm shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute -top-24 -left-24 w-48 h-48 bg-white/5 rounded-full blur-3xl" />
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-white/10 rounded-3xl mx-auto mb-8 flex items-center justify-center border border-white/20 shadow-inner">
+                  <span className="text-4xl">💻</span>
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight">Desktop Preferred</h3>
+                <p className="text-white/70 text-sm leading-relaxed mb-10">
+                  This experience is crafted for larger displays to showcase the full 3D interactive details.
+                </p>
+                <button
+                  onClick={() => {
+                    setShowMobileWarning(false);
+                    sessionStorage.setItem('mobile-warning-dismissed', 'true');
+                  }}
+                  className="w-full py-4 bg-white text-black font-bold rounded-2xl shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300 tracking-wide"
+                >
+                  Continue Anyway
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Global Loading Screen */}
       <AnimatePresence>
         {!appLoaded && (
@@ -347,16 +404,16 @@ export default function App() {
                 <span className="lowercase">bio-</span>
                 <span className="font-serif italic font-medium">Aktive</span>
               </span>
-              
+
               <div className="w-full h-1 bg-gray-900/10 rounded-full overflow-hidden mt-6 relative">
-                <motion.div 
+                <motion.div
                   className="absolute top-0 left-0 bottom-0 bg-gray-900 rounded-full"
                   initial={{ width: '0%' }}
                   animate={{ width: `${progress}%` }}
                   transition={{ ease: "easeOut", duration: 0.3 }}
                 />
               </div>
-              
+
               <div className="mt-4 flex items-center justify-between w-full text-xs font-bold tracking-[0.2em] uppercase text-gray-500">
                 <span>Loading Elements</span>
                 <span><SmoothCounter progress={progress} />%</span>
@@ -367,14 +424,14 @@ export default function App() {
       </AnimatePresence>
 
       <CustomCursor color={currentProduct.color} />
-      <NotificationSystem 
-        notifications={notifications} 
-        removeNotification={removeNotification} 
+      <NotificationSystem
+        notifications={notifications}
+        removeNotification={removeNotification}
         onNotificationClick={() => setIsCartOpen(true)}
       />
-      <CartSidebar 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
+      <CartSidebar
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
         cart={cart}
         removeFromCart={removeFromCart}
       />
@@ -394,7 +451,7 @@ export default function App() {
           <button className="p-2 hover:bg-black/5 rounded-full transition-colors">
             <Search className="w-5 h-5 text-gray-700" />
           </button>
-          <button 
+          <button
             onClick={() => setIsCartOpen(true)}
             className="flex items-center space-x-3 bg-white/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/30 shadow-sm hover:bg-white/60 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer relative"
           >
