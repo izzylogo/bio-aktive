@@ -557,6 +557,48 @@ export default function App() {
         </motion.div>
       </motion.div>
 
+      {/* Mobile Section Checkpoints */}
+      <AnimatePresence>
+        {isMobile && !showMobileWarning && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="fixed right-4 top-1/2 -translate-y-1/2 z-[140] flex flex-col items-center space-y-4 py-6 px-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-xl"
+          >
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+              const isActive = currentSection === i;
+              return (
+                <button
+                  key={i}
+                  onClick={() => goToSection(i)}
+                  className="relative group p-1 transition-all"
+                  aria-label={`Go to section ${i}`}
+                >
+                  <motion.div
+                    animate={{
+                      scale: isActive ? 1.4 : 1,
+                      backgroundColor: isActive ? currentProduct.color : "rgba(255,255,255,0.4)"
+                    }}
+                    className="w-2.5 h-2.5 rounded-full shadow-sm hover:scale-125 transition-transform"
+                    style={{
+                      border: isActive ? `2px solid white` : "none"
+                    }}
+                  />
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-nav-glow"
+                      className="absolute inset-0 rounded-full blur-[6px] opacity-40"
+                      style={{ backgroundColor: currentProduct.color }}
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Content */}
       <motion.div
         className="absolute inset-0 w-full z-10 pointer-events-none"
